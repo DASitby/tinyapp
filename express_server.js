@@ -27,9 +27,9 @@ app.get("/urls", (req,res) => {
 });
 
 app.post("/urls", (req, res) => {
-  const templateVars = { id: generateRandomString(), longURL: req.body.longURL };
-  urlDatabase[templateVars.id] = templateVars.longURL;
-  res.render("urls_show", templateVars);
+  const id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  res.redirect(`/urls/${id}`);
 });
 
 app.get("/urls/new", (req, res) => {
