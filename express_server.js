@@ -27,8 +27,9 @@ app.get("/urls", (req,res) => {
 });
 
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  const templateVars = { id: generateRandomString(), longURL: req.body.longURL };
+  urlDatabase[templateVars.id] = templateVars.longURL;
+  res.render("urls_show", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
