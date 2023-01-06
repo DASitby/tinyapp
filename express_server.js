@@ -9,10 +9,7 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-cosnt generateRandomString = () => {
-
-}
-
+const generateRandomString = (length = 6)=>Math.random().toString(36).substr(2, length);
 
 app.use(express.urlencoded({ extended: true }));
 
