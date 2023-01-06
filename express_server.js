@@ -48,13 +48,19 @@ app.get("/u/:id", (req, res) => {
   res.redirect(longURL);
 });
 
-//DELETE
+//UPDATE
+app.post("/urls/:id/rewrite", (req,res) => {
+  const id = req.params.id;
+  const newURL = res.req.body.newID;
+  urlDatabase[id] = newURL;
+  res.redirect(`/urls/${id}`);
+});
 
+//DELETE
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];
   console.log(id);
-  console.log(urlDatabase);
   res.redirect(`/urls`);
 });
 
