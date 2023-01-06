@@ -4,7 +4,7 @@ const PORT = 8080;
 
 app.set("view engine", "ejs");
 
-const urlDatabase = {
+let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
@@ -20,12 +20,13 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
 });
-
+//READ (ALL)
 app.get("/urls", (req,res) => {
   let templateVars = {urls: urlDatabase};
   res.render("urls_index", templateVars);
 });
 
+//CREATE
 app.post("/urls", (req, res) => {
   const id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
@@ -36,14 +37,25 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+//READ(ONE)
+app.get("/urls/:id", (req, res) => {
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  res.render("urls_show", templateVars);
+});
+
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
-app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
-  res.render("urls_show", templateVars);
+//DELETE
+
+app.post("/urls/:id/delete", (req, res) => {
+  const id = req.params.id;
+  delete urlDatabase[id];
+  console.log(id);
+  console.log(urlDatabase);
+  res.redirect(`/urls`);
 });
 
 app.listen(PORT, () => {
