@@ -22,6 +22,7 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
+        <h4>Edit</h4>
         <form method = "POST" action="/urls/<%= id %>/rewrite">
           <input type="text" name="newID" placeholder="Enter a new URL">
           <button type="submit">Submit</button>
