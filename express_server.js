@@ -25,7 +25,13 @@ app.get("/urls.json", (req,res) => {
 //LOGIN
 app.post("/login", (req, res) => {
   res.cookie('username', res.req.body.username);
-  res.redirect(`/urls`);
+  res.redirect('/urls');
+});
+
+//LOGOUT
+app.post("/logout", (req,res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
 });
 
 //CREATE
