@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const cookieParser = require('cookie-parser');
 const PORT = 8080;
 
 app.set("view engine", "ejs");
@@ -20,10 +21,12 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
 });
-//READ (ALL)
-app.get("/urls", (req,res) => {
-  let templateVars = {urls: urlDatabase};
-  res.render("urls_index", templateVars);
+
+//LOGIN
+app.post("/login", (req, res) => {
+  console.log(res.req.body.username);
+  res.cookie('username', res.req.body.username);
+  res.redirect(`/urls`);
 });
 
 //CREATE
@@ -32,20 +35,20 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
 });
-
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
+});
+
+//READ (ALL)
+app.get("/urls", (req,res) => {
+  let templateVars = {urls: urlDatabase};
+  res.render("urls_index", templateVars);
 });
 
 //READ(ONE)
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   res.render("urls_show", templateVars);
-});
-
-app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
 });
 
 //UPDATE
@@ -60,8 +63,13 @@ app.post("/urls/:id/rewrite", (req,res) => {
 app.post("/urls/:id/delete", (req, res) => {
   const id = req.params.id;
   delete urlDatabase[id];
-  console.log(id);
   res.redirect(`/urls`);
+});
+
+//REDIRECT
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
 });
 
 app.listen(PORT, () => {
