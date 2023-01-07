@@ -20,7 +20,10 @@
     </div>
   </nav>
   <% if(username){ %>
-    <h5>Hello, <%= username %></h5>
+    <h5>Hello, <%= username %></h5> 
+    <form method="POST" action="/logout">
+      <button type = "submit">Logout</button>
+    </form>
     <% }else{ %>
       <h5>Login</h5>
       <form method = "POST" action="/login">
