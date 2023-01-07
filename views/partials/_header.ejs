@@ -19,9 +19,13 @@
       </div>
     </div>
   </nav>
-  <h5>Login</h5>
-  <form method = "POST" action="/login">
-    <input type="text" name="username" placeholder="Enter your username">
-    <button type="submit">Submit</button>
-  </form>
+  <% if(username){ %>
+    <h5>Hello, <%= username %></h5>
+    <% }else{ %>
+      <h5>Login</h5>
+      <form method = "POST" action="/login">
+        <input type="text" name="username" placeholder="Enter your username">
+        <button type="submit">Submit</button>
+      </form>
+    <% } %>
 </header>
