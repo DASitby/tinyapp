@@ -13,6 +13,14 @@ let urlDatabase = {
 };
 const users = {};
 
+const userLookup = (email) => {
+  for (const user in users) {
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return null;
+};
 const generateRandomString = (length = 6)=>Math.random().toString(36).substr(2, length);
 
 app.use(express.urlencoded({ extended: true }));
@@ -35,14 +43,25 @@ app.get("/register", (req,res) => {
 });
 
 app.post("/register", (req, res) => {
-  let newUser = {
-    id: generateRandomString(),
-    email: req.body.email,
-    password:req.body.password
-  };
-  users[newUser.id] = newUser;
-  res.cookie('user_id', newUser.id);
-  res.redirect('/urls');
+  let newEmail = req.body.email;
+  let newPassword = req.body.password;
+  //error handling
+  if (newEmail === '' || newPassword === '') {
+    res.status(400).redirect('/register');
+  }
+  if (!userLookup(newEmail)) {
+  //user generation
+    let newUser = {
+      id: generateRandomString(),
+      email: req.body.email,
+      password:req.body.password
+    };
+    users[newUser.id] = newUser;
+    res.cookie('user_id', newUser.id);
+    res.redirect('/urls');
+  } else {
+    res.status(400).redirect('/register');
+  }
 });
 
 //LOGIN
@@ -56,6 +75,9 @@ app.post("/logout", (req,res) => {
   res.clearCookie('username');
   res.redirect('/urls');
 });
+///////////////
+///URL HANDLERS
+///////////////
 
 //CREATE
 app.post("/urls", (req, res) => {
@@ -104,12 +126,15 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect(`/urls`);
 });
 
-//REDIRECT
+//REDIRECT TO
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
 });
 
+/////////////
+/// LISTENER
+/////////////
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}!`);
 });
