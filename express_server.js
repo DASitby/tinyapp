@@ -46,7 +46,7 @@ app.post("/register", (req, res) => {
 
 //LOGIN
 app.post("/login", (req, res) => {
-  res.cookie('username', res.req.body.username);
+  res.cookie('username', req.body.username);
   res.redirect('/urls');
 });
 
@@ -91,7 +91,7 @@ app.get("/urls/:id", (req, res) => {
 //UPDATE
 app.post("/urls/:id/rewrite", (req,res) => {
   const id = req.params.id;
-  const newURL = res.req.body.newID;
+  const newURL = req.body.newID;
   urlDatabase[id] = newURL;
   res.redirect(`/urls/${id}`);
 });
