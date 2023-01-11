@@ -14,13 +14,17 @@ let urlDatabase = {
 const users = {};
 
 const userLookup = (email) => {
-  for (const user in users) {
-    if (user.email === email) {
-      return user;
+  for (const key in users) {
+    if (Object.hasOwnProperty.call(users, key)) {
+      const user = users[key];
+      if (user.email === email) {
+        return user;
+      }
     }
   }
   return null;
 };
+
 const generateRandomString = (length = 6)=>Math.random().toString(36).substr(2, length);
 
 app.use(express.urlencoded({ extended: true }));
@@ -47,20 +51,22 @@ app.post("/register", (req, res) => {
   let newPassword = req.body.password;
   //error handling
   if (newEmail === '' || newPassword === '') {
-    res.status(400).redirect('/register');
+    res.status(400);
+    return res.redirect('/register');
   }
   if (!userLookup(newEmail)) {
   //user generation
     let newUser = {
       id: generateRandomString(),
-      email: req.body.email,
-      password:req.body.password
+      email: newEmail,
+      password:newPassword
     };
     users[newUser.id] = newUser;
     res.cookie('user_id', newUser.id);
     res.redirect('/urls');
   } else {
-    res.status(400).redirect('/register');
+    res.status(400);
+    return res.redirect('/register');
   }
 });
 
