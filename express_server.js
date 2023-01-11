@@ -1,10 +1,12 @@
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 const PORT = 8080;
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
+app.use(bodyParser());
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
@@ -21,6 +23,16 @@ app.get("/", (req, res) => {
 app.get("/urls.json", (req,res) => {
   res.json(urlDatabase);
 });
+
+//REGISTER
+app.get("/register", (req,res) => {
+  const templateVars = {};
+  if (req.cookies) {
+    templateVars.username = req.cookies['username'];
+  }
+  res.render('register', templateVars);
+});
+
 
 //LOGIN
 app.post("/login", (req, res) => {
@@ -54,7 +66,6 @@ app.get("/urls", (req,res) => {
   if (req.cookies) {
     templateVars.username = req.cookies['username'];
   }
-  console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
