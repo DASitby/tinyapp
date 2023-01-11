@@ -11,6 +11,7 @@ let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+const users = {};
 
 const generateRandomString = (length = 6)=>Math.random().toString(36).substr(2, length);
 
@@ -33,6 +34,15 @@ app.get("/register", (req,res) => {
   res.render('register', templateVars);
 });
 
+app.post("/register", (req, res) => {
+  let newUser = {
+    id: generateRandomString(),
+    email: req.body.email,
+    password:req.body.password
+  };
+  users[newUser.id] = newUser;
+  res.redirect('/urls');
+});
 
 //LOGIN
 app.post("/login", (req, res) => {
