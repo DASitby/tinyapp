@@ -38,9 +38,10 @@ app.get('/urls.json', (req,res) => {
 
 //REGISTER
 app.get('/register', (req,res) => {
-  const templateVars = {};
-  if (req.cookies) {
-    templateVars.user = users[req.cookies['user_id']];
+  const templateVars = {user: users[req.cookies['user_id']]};
+  if (req.cookies.user_id) {
+    res.redirect('/urls');
+    return;
   }
   res.render('register', templateVars);
 });
@@ -69,9 +70,10 @@ app.post('/register', (req, res) => {
 
 //LOGIN
 app.get('/login', (req,res) => {
-  const templateVars = {};
-  if (req.cookies) {
-    templateVars.user = users[req.cookies['user_id']];
+  const templateVars = {user: users[req.cookies['user_id']]};
+  if (req.cookies.user_id) {
+    res.redirect('/urls');
+    return;
   }
   res.render('login',templateVars);
 });
