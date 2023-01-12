@@ -83,13 +83,13 @@ app.post('/login', (req, res) => {
   let loginPass = req.body.password;
   let user = emailLookup(loginEmail);
   if (!user) {
-    return res.status(400).redirect('/login');
+    return res.status(403).redirect('/login');
   } else {
     if (user.password === loginPass) {
       res.cookie('user_id', user.id);
       res.redirect('/urls');
     } else {
-      return res.status(400).redirect('/login');
+      return res.status(403).redirect('/login');
     }
   }
 });
