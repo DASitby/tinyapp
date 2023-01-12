@@ -1,12 +1,11 @@
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
-const bodyParser = require('body-parser');
 const PORT = 8080;
 
 app.set("view engine", "ejs");
 app.use(cookieParser());
-app.use(bodyParser());
+app.use(express.urlencoded({ extended: false }));
 let urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
