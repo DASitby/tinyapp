@@ -104,17 +104,17 @@ app.post('/logout', (req,res) => {
 ///////////////
 
 //CREATE
-app.post('/urls', (req, res) => {
-  const id = generateRandomString();
-  urlDatabase[id] = req.body.longURL;
-  res.redirect(`/urls/${id}`);
-});
 app.get('/urls/new', (req, res) => {
   const templateVars = {};
   if (req.cookies) {
     templateVars.user = users[req.cookies['user_id']];
   }
   res.render('urls_new',templateVars);
+});
+app.post('/urls', (req, res) => {
+  const id = generateRandomString();
+  urlDatabase[id] = req.body.longURL;
+  res.redirect(`/urls/${id}`);
 });
 
 //READ (ALL)
