@@ -50,8 +50,7 @@ app.post('/register', (req, res) => {
   let newPassword = req.body.password;
   //error handling
   if (newEmail === '' || newPassword === '') {
-    res.status(400);
-    return res.redirect('/register');
+    return res.status(400).redirect('/register');
   }
   if (!emailLookup(newEmail)) {
   //user generation
@@ -64,8 +63,7 @@ app.post('/register', (req, res) => {
     res.cookie('user_id', newUser.id);
     res.redirect('/urls');
   } else {
-    res.status(400);
-    return res.redirect('/register');
+    return res.status(400).redirect('/register');
   }
 });
 
