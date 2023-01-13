@@ -105,13 +105,18 @@ app.post('/logout', (req,res) => {
 
 //CREATE
 app.get('/urls/new', (req, res) => {
-  const templateVars = {};
-  if (req.cookies) {
-    templateVars.user = users[req.cookies['user_id']];
+  const templateVars = {user: users[req.cookies['user_id']]};
+  if (!req.cookies.user_id) {
+    res.redirect('/login');
+    return;
   }
   res.render('urls_new',templateVars);
 });
 app.post('/urls', (req, res) => {
+  if (!req.cookies.user_id) {
+    res.send('<p>Cannot shorten URLs unless you <a href="/register">register</a> for tinyapp</p>');
+    return;
+  }
   const id = generateRandomString();
   urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
