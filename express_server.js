@@ -140,11 +140,14 @@ app.post('/urls', (req, res) => {
 
 //READ (ALL)
 app.get('/urls', (req,res) => {
-  const templateVars = {urls: urlDatabase};
-  if (req.cookies) {
-    templateVars.user = users[req.cookies['user_id']];
+  if (!req.cookies.user_id) {
+    res.send('<p>Cannot display URLs unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+    return;
+  } else {
+    let userUrls = urlsforUser(req.cookies['user_id']);
+    const templateVars = {urls: userUrls,user: users[req.cookies['user_id']]};
+    res.render('urls_index', templateVars);
   }
-  res.render('urls_index', templateVars);
 });
 
 //READ(ONE)
