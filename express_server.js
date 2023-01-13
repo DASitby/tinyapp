@@ -12,6 +12,10 @@ let urlDatabase = {
 };
 const users = {};
 
+///////////////////
+///HELPER FUNCTIONS
+///////////////////
+
 const emailLookup = (checkEmail) => {
   for (const key in users) {
     if (Object.hasOwnProperty.call(users, key)) {
@@ -25,6 +29,17 @@ const emailLookup = (checkEmail) => {
 };
 
 const generateRandomString = (length = 6)=>Math.random().toString(36).substr(2, length);
+
+const urlsforUser = (loggedInAs) => {
+  let results = {};
+  for (const url in urlDatabase) {
+    let ID = urlDatabase[url].userID;
+    if (ID === loggedInAs) {
+      results[url] = urlDatabase[url];
+    }
+  }
+  return results;
+};
 
 app.use(express.urlencoded({ extended: true }));
 
