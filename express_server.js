@@ -157,8 +157,13 @@ app.post('/urls/:id/delete', (req, res) => {
 
 //REDIRECT TO
 app.get('/u/:id', (req, res) => {
-  const longURL = urlDatabase[req.params.id];
-  res.redirect(longURL);
+  for (const url in urlDatabase) {
+    if (url === req.params.id) {
+      const longURL = urlDatabase[req.params.id];
+      return res.redirect(longURL);
+    }
+  }
+  res.status(404).send('<p>URL not found</p>');
 });
 
 /////////////
