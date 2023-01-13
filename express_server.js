@@ -27,9 +27,7 @@ const emailLookup = (checkEmail) => {
   }
   return null;
 };
-
 const generateRandomString = (length = 6)=>Math.random().toString(36).substr(2, length);
-
 const urlsforUser = (loggedInAs) => {
   let results = {};
   for (const url in urlDatabase) {
@@ -39,6 +37,23 @@ const urlsforUser = (loggedInAs) => {
     }
   }
   return results;
+};
+const urlExists = (url) => {
+  for (const key in urlDatabase) {
+    if (url === key) {
+      return true;
+    }
+  }
+  return false;
+};
+const ownerCheck = (loggedInAs, URL) => {
+  if (urlExists(URL)) {
+    if (urlDatabase[URL].userID === loggedInAs) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 };
 
 app.use(express.urlencoded({ extended: true }));
@@ -152,9 +167,14 @@ app.get('/urls', (req,res) => {
 
 //READ(ONE)
 app.get('/urls/:id', (req, res) => {
-  if (!req.cookies.user_id) {
-    res.send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+  let currentUser = req.cookies.user_id;
+  if (!urlExists(req.params.id)) {
+    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
     return;
+  } else if (!currentUser) {
+    res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+  } else if (!ownerCheck(currentUser, req.params.id)) {
+    res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
   } else {
     const templateVars = {
       id: req.params.id,
@@ -167,21 +187,44 @@ app.get('/urls/:id', (req, res) => {
 
 //UPDATE
 app.post('/urls/:id/rewrite', (req,res) => {
-  const id = req.params.id;
-  const newURL = req.body.newID;
-  urlDatabase[id].longURL = newURL;
-  res.redirect(`/urls/${id}`);
+  let currentUser = req.cookies.user_id;
+  if (!urlExists(req.params.id)) {
+    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
+    return;
+  } else if (!currentUser) {
+    res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+  } else if (!ownerCheck(currentUser, req.params.id)) {
+    res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
+  } else {
+    const id = req.params.id;
+    const newURL = req.body.newID;
+    urlDatabase[id].longURL = newURL;
+    res.redirect(`/urls/${id}`);
+  }
 });
 
 //DELETE
 app.post('/urls/:id/delete', (req, res) => {
-  const id = req.params.id;
-  delete urlDatabase[id];
-  res.redirect(`/urls`);
+  let currentUser = req.cookies.user_id;
+  if (!urlExists(req.params.id)) {
+    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
+    return;
+  } else if (!currentUser) {
+    res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+  } else if (!ownerCheck(currentUser, req.params.id)) {
+    res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
+  } else {
+    const id = req.params.id;
+    delete urlDatabase[id];
+    res.redirect(`/urls`);
+  }
 });
 
 //REDIRECT TO
 app.get('/u/:id', (req, res) => {
+  if (!urlExists(req.params.id)) {
+    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
+  }
   for (const url in urlDatabase) {
     if (url === req.params.id) {
       const longURL = urlDatabase[req.params.id].longURL;
