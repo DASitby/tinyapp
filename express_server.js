@@ -3,7 +3,7 @@
 //////////
 const express = require("express");
 const app = express();
-const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const bcrypt = require('bcryptjs');
 
 ////////////
@@ -20,7 +20,13 @@ const users = {};
 ///MIDDLEWARE
 /////////////
 app.set("view engine", "ejs");
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['yeahmyboyyeah'],
+
+  // Cookie Options
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}));
 app.use(express.urlencoded({ extended: false }));
 
 ///////////////////
@@ -67,7 +73,6 @@ const ownerCheck = (loggedInAs, URL) => {
   }
 };
 
-app.use(express.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -79,8 +84,8 @@ app.get('/urls.json', (req,res) => {
 
 //REGISTER
 app.get('/register', (req,res) => {
-  const templateVars = {user: users[req.cookies['user_id']]};
-  if (req.cookies.user_id) {
+  const templateVars = {user: users[req.session.user_id]};
+  if (req.session.user_id) {
     res.redirect('/urls');
     return;
   }
@@ -102,7 +107,7 @@ app.post('/register', (req, res) => {
       password:newPassword
     };
     users[newUser.id] = newUser;
-    res.cookie('user_id', newUser.id);
+    req.session.user_id = newUser.id;
     res.redirect('/urls');
   } else {
     return res.status(400).redirect('/register');
@@ -111,8 +116,8 @@ app.post('/register', (req, res) => {
 
 //LOGIN
 app.get('/login', (req,res) => {
-  const templateVars = {user: users[req.cookies['user_id']]};
-  if (req.cookies.user_id) {
+  const templateVars = {user: users[req.session.user_id]};
+  if (req.session.user_id) {
     res.redirect('/urls');
     return;
   }
@@ -146,39 +151,39 @@ app.post('/logout', (req,res) => {
 
 //CREATE
 app.get('/urls/new', (req, res) => {
-  const templateVars = {user: users[req.cookies['user_id']]};
-  if (!req.cookies.user_id) {
+  const templateVars = {user: users[req.session.user_id]};
+  if (!req.session.user_id) {
     res.redirect('/login');
     return;
   }
   res.render('urls_new',templateVars);
 });
 app.post('/urls', (req, res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.send('<p>Cannot shorten URLs unless you <a href="/register">register</a> for tinyapp</p>');
     return;
   } else {
     const id = generateRandomString();
-    urlDatabase[id] = {longURL: req.body.longURL,userID: req.cookies.user_id};
+    urlDatabase[id] = {longURL: req.body.longURL,userID: req.session.user_id};
     res.redirect(`/urls/${id}`);
   }
 });
 
 //READ (ALL)
 app.get('/urls', (req,res) => {
-  if (!req.cookies.user_id) {
+  if (!req.session.user_id) {
     res.send('<p>Cannot display URLs unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
     return;
   } else {
-    let userUrls = urlsforUser(req.cookies['user_id']);
-    const templateVars = {urls: userUrls,user: users[req.cookies['user_id']]};
+    let userUrls = urlsforUser(req.session.user_id);
+    const templateVars = {urls: userUrls,user: users[req.session.user_id]};
     res.render('urls_index', templateVars);
   }
 });
 
 //READ(ONE)
 app.get('/urls/:id', (req, res) => {
-  let currentUser = req.cookies.user_id;
+  let currentUser = req.session.user_id;
   if (!urlExists(req.params.id)) {
     res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
     return;
@@ -190,7 +195,7 @@ app.get('/urls/:id', (req, res) => {
     const templateVars = {
       id: req.params.id,
       longURL: urlDatabase[req.params.id].longURL,
-      user: users[req.cookies['user_id']],
+      user: users[req.session.user_id],
     };
     res.render('urls_show', templateVars);
   }
@@ -198,7 +203,7 @@ app.get('/urls/:id', (req, res) => {
 
 //UPDATE
 app.post('/urls/:id/rewrite', (req,res) => {
-  let currentUser = req.cookies.user_id;
+  let currentUser = req.session.user_id;
   if (!urlExists(req.params.id)) {
     res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
     return;
@@ -216,7 +221,7 @@ app.post('/urls/:id/rewrite', (req,res) => {
 
 //DELETE
 app.post('/urls/:id/delete', (req, res) => {
-  let currentUser = req.cookies.user_id;
+  let currentUser = req.session.user_id;
   if (!urlExists(req.params.id)) {
     res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
     return;
