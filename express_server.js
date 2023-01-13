@@ -107,7 +107,7 @@ app.post('/register', (req, res) => {
       password:newPassword
     };
     users[newUser.id] = newUser;
-    req.session.user_id = newUser.id;
+    req.session['user_id'] = newUser.id;
     res.redirect('/urls');
   } else {
     return res.status(400).redirect('/register');
