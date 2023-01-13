@@ -171,7 +171,7 @@ app.get('/urls/:id', (req, res) => {
 });
 
 //UPDATE
-app.post('/urls/:id/rewrite', (req,res) => {
+app.post('/urls/:id', (req,res) => {
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
   if (!urlExists(currentID, urlDatabase)) {
