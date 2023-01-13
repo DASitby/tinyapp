@@ -152,11 +152,17 @@ app.get('/urls', (req,res) => {
 
 //READ(ONE)
 app.get('/urls/:id', (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL};
-  if (req.cookies) {
-    templateVars.user = users[req.cookies['user_id']];
+  if (!req.cookies.user_id) {
+    res.send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+    return;
+  } else {
+    const templateVars = {
+      id: req.params.id,
+      longURL: urlDatabase[req.params.id].longURL,
+      user: users[req.cookies['user_id']],
+    };
+    res.render('urls_show', templateVars);
   }
-  res.render('urls_show', templateVars);
 });
 
 //UPDATE
