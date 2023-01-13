@@ -1,16 +1,27 @@
+//////////
+///IMPORTS
+//////////
 const express = require("express");
 const app = express();
 const cookieParser = require('cookie-parser');
-const PORT = 8080;
+const bcrypt = require('bcryptjs');
 
-app.set("view engine", "ejs");
-app.use(cookieParser());
-app.use(express.urlencoded({ extended: false }));
-let urlDatabase = {
+////////////
+///CONSTANTS
+////////////
+const PORT = 8080;
+const urlDatabase = {
   "b2xVn2": {longURL:'http://www.lighthouselabs.ca',userID: 'aJ48lW'},
   "9sm5xK": {longURL:'http://www.google.com', userID: 'aJ48lW'},
 };
 const users = {};
+
+/////////////
+///MIDDLEWARE
+/////////////
+app.set("view engine", "ejs");
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: false }));
 
 ///////////////////
 ///HELPER FUNCTIONS
@@ -78,7 +89,7 @@ app.get('/register', (req,res) => {
 
 app.post('/register', (req, res) => {
   let newEmail = req.body.email;
-  let newPassword = req.body.password;
+  let newPassword = bcrypt.hashSync(req.body.password, 10);
   //error handling
   if (newEmail === '' || newPassword === '') {
     return res.status(400).redirect('/register');
@@ -115,7 +126,7 @@ app.post('/login', (req, res) => {
   if (!user) {
     return res.status(403).redirect('/login');
   } else {
-    if (user.password === loginPass) {
+    if (bcrypt.compareSync(loginPass, user.password)) {
       res.cookie('user_id', user.id);
       res.redirect('/urls');
     } else {
