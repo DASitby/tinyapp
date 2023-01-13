@@ -2,8 +2,8 @@
 ///IMPORTS
 //////////
 const express = require("express");
-const app = express();
 const cookieSession = require('cookie-session');
+const methodOverride = require('method-override');
 const bcrypt = require('bcryptjs');
 const {
   getUserByEmail,
@@ -16,6 +16,7 @@ const {
 ////////////
 ///CONSTANTS
 ////////////
+const app = express();
 const PORT = 8080;
 const urlDatabase = {
   "b2xVn2": {longURL:'http://www.lighthouselabs.ca',userID: 'aJ48lW'},
@@ -35,6 +36,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 app.use(express.urlencoded({ extended: false }));
+app.use(methodOverride('X-HTTP-Method-Override'));
 
 app.get('/', (req, res) => {
   res.send('Hello!');
