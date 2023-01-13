@@ -36,7 +36,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 app.use(express.urlencoded({ extended: false }));
-app.use(methodOverride('X-HTTP-Method-Override'));
+app.use(methodOverride('_method'));
 
 app.get('/', (req, res) => {
   res.send('Hello!');
@@ -173,7 +173,7 @@ app.get('/urls/:id', (req, res) => {
 });
 
 //UPDATE
-app.post('/urls/:id', (req,res) => {
+app.put('/urls/:id', (req,res) => {
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
   if (!urlExists(currentID, urlDatabase)) {
@@ -191,7 +191,7 @@ app.post('/urls/:id', (req,res) => {
 });
 
 //DELETE
-app.post('/urls/:id/delete', (req, res) => {
+app.delete('/urls/:id', (req, res) => {
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
   if (!urlExists(currentID, urlDatabase)) {
