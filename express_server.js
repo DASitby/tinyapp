@@ -164,9 +164,11 @@ app.post('/urls', (req, res) => {
   } else {
     //populate urlDatabase with a new URL
     const id = generateRandomString();
+    const date = new Date(Date.now());
     urlDatabase[id] = {
       longURL: req.body.longURL,
       userID: currentUser,
+      timeCreated: date,
       viewCount: 0,
       viewers: [],
       viewLog: [],
