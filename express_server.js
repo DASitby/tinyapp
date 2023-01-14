@@ -290,8 +290,11 @@ app.get('/u/:id', (req, res) => {
     if (url === currentID) {
       //When a match is found, increment viewcount
       urlDatabase[currentID].viewCount++;
+      //Check if the viewer has a session.user_id
+      if (!currentUser) {
+        urlDatabase[currentID].viewers.push("an anonymous user");
       //Check if viewer is in the viewers array
-      if (!urlDatabase[currentID].viewers.includes(currentUser)) {
+      } else if (!urlDatabase[currentID].viewers.includes(currentUser)) {
         //Add them if they aren't already in there
         urlDatabase[currentID].viewers.push(currentUser);
       }
