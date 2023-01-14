@@ -174,7 +174,8 @@ app.get('/urls/:id', (req, res) => {
       longURL: urlDatabase[currentID].longURL,
       user: users[currentUser],
       viewCount: urlDatabase[currentID].viewCount,
-      viewerCount: urlDatabase[currentID].viewers.length
+      viewerCount: urlDatabase[currentID].viewers.length,
+      viewLog: urlDatabase[currentID].viewLog,
     };
     res.render('urls_show', templateVars);
   }
@@ -217,22 +218,33 @@ app.delete('/urls/:id', (req, res) => {
 
 //REDIRECT TO
 app.get('/u/:id', (req, res) => {
+  //simplifying variables
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
+  //Check if url exists in the database, if not, send an error message
   if (!urlExists(currentID, urlDatabase)) {
     res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
   }
+  //Find which id in the URL database matches :id
   for (const url in urlDatabase) {
     if (url === currentID) {
+      //Increment view count
       urlDatabase[currentID].viewCount++;
+      //Check if viewer is in the viewers array
       if (!urlDatabase[currentID].viewers.includes(currentUser)) {
+        //Add them if they aren't already in there
         urlDatabase[currentID].viewers.push(currentUser);
       }
+      //Log the view
+      urlDatabase[currentID].viewLog.push({
+        'timestamp': new Date(Date.now()),
+        'visitor_id': generateRandomString(4),
+      });
+      //Redirect to longURL corresponding to :id
       const longURL = urlDatabase[currentID].longURL;
       return res.redirect(longURL);
     }
   }
-  res.status(404).send('<p>URL not found</p>');
 });
 
 /////////////

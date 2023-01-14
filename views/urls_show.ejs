@@ -33,6 +33,24 @@
         <p class="card-text">
           Page Views: <a><%= (viewCount || 0) %></a> Page Viewers: <a><%= viewerCount %></a>
         </p>
+        <p>View Log:</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Time</th>
+              <th scope="col">Visitor ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for (let view of viewLog) { %>
+              <tr>
+                <td><%= view['timestamp'].toDateString() %></td>
+                <td><%= view['visitor_id'] %></td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+        </p>
       </div>
     </div>
     <!-- Bootstrap JS -->
