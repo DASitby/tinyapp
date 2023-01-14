@@ -38,12 +38,16 @@ app.use(cookieSession({
 app.use(express.urlencoded({ extended: false }));
 app.use(methodOverride('_method'));
 
-app.get('/', (req, res) => {
-  res.send('Hello!');
-});
+/////////////////
+///ROUTE HANDLERS
+/////////////////
 
-app.get('/urls.json', (req,res) => {
-  res.json(urlDatabase);
+//ROOT
+app.get('/', (req, res) => {
+  if (!req.session.user_id) {
+    return res.redirect('/login');
+  }
+  res.redirect('/urls');
 });
 
 //REGISTER
@@ -56,7 +60,6 @@ app.get('/register', (req,res) => {
   }
   res.render('register', templateVars);
 });
-
 app.post('/register', (req, res) => {
   let newEmail = req.body.email;
   let newPassword = bcrypt.hashSync(req.body.password, 10);
@@ -89,7 +92,6 @@ app.get('/login', (req,res) => {
   }
   res.render('login',templateVars);
 });
-
 app.post('/login', (req, res) => {
   let loginEmail = req.body.email;
   let loginPass = req.body.password;
@@ -112,6 +114,7 @@ app.post('/logout', (req,res) => {
   res.clearCookie('session.sig');
   res.redirect('/login');
 });
+
 ///////////////
 ///URL HANDLERS
 ///////////////
