@@ -17,16 +17,16 @@
     href = '#'
   />
     <div class="card text-center">
-      <h2 class="card-footer">TinyURL for: <%= longURL %></h2>
-      <p class="card-text">
-        Date Created: <%= timeCreated.toDateString() %></a>
-      </p>
       <div class="card-header">
+        <h2 class="card-title">
+          Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
+        </h2>
+        <p class="card-text">
+          Date Created: <%= timeCreated.toDateString() %></a>
+        </p>
       </div>
       <div class="card-body">
-        <h3 class="card-title">
-          Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
-        </h3>
+        <h3 class="card-footer">TinyURL for: <%= longURL %></h3>
         <p class="card-text">Edit Link</p>
         <form method = "POST" action="/urls/<%= id %>?_method=PUT">
           <input type="text" name="newID" placeholder="Enter a new URL">
