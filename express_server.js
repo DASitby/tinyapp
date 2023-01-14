@@ -19,8 +19,8 @@ const {
 const app = express();
 const PORT = 8080;
 const urlDatabase = {
-  "b2xVn2": {longURL:'http://www.lighthouselabs.ca',userID: 'aJ48lW'},
-  "9sm5xK": {longURL:'http://www.google.com', userID: 'aJ48lW'},
+  "b2xVn2": {longURL:'http://www.lighthouselabs.ca',userID: 'aJ48lW',viewCount: 0, viewers: [], viewLog: []},
+  "9sm5xK": {longURL:'http://www.google.com', userID: 'aJ48lW',viewCount: 0, viewers: [], viewLog: []},
 };
 const users = {};
 
@@ -98,7 +98,7 @@ app.post('/login', (req, res) => {
     return res.status(403).redirect('/login');
   } else {
     if (bcrypt.compareSync(loginPass, user.password)) {
-      res.cookie('user_id', user.id);
+      req.session['user_id'] = user.id;
       res.redirect('/urls');
     } else {
       return res.status(403).redirect('/login');
@@ -133,7 +133,13 @@ app.post('/urls', (req, res) => {
     return;
   } else {
     const id = generateRandomString();
-    urlDatabase[id] = {longURL: req.body.longURL,userID: currentUser};
+    urlDatabase[id] = {
+      longURL: req.body.longURL,
+      userID: currentUser,
+      viewCount: 0,
+      viewers: [],
+      viewLog: [],
+    };
     res.redirect(`/urls/${id}`);
   }
 });
@@ -163,12 +169,12 @@ app.get('/urls/:id', (req, res) => {
   } else if (!ownerCheck(currentUser, currentID, urlDatabase)) {
     res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
   } else {
-    //req.session.views = (req.session.views || 0) + 1;
     const templateVars = {
       id: currentID,
       longURL: urlDatabase[currentID].longURL,
       user: users[currentUser],
-      views: req.session.views,
+      viewCount: urlDatabase[currentID].viewCount,
+      viewerCount: urlDatabase[currentID].viewers.length
     };
     res.render('urls_show', templateVars);
   }
@@ -211,13 +217,17 @@ app.delete('/urls/:id', (req, res) => {
 
 //REDIRECT TO
 app.get('/u/:id', (req, res) => {
+  let currentUser = req.session.user_id;
   let currentID = req.params.id;
   if (!urlExists(currentID, urlDatabase)) {
     res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
   }
   for (const url in urlDatabase) {
     if (url === currentID) {
-      req.session.views = (req.session.views || 0) + 1;
+      urlDatabase[currentID].viewCount++;
+      if (!urlDatabase[currentID].viewers.includes(currentUser)) {
+        urlDatabase[currentID].viewers.push(currentUser);
+      }
       const longURL = urlDatabase[currentID].longURL;
       return res.redirect(longURL);
     }
