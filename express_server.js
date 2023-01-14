@@ -220,6 +220,7 @@ app.get('/urls/:id', (req, res) => {
     viewCount: urlDatabase[currentID].viewCount,
     viewerCount: urlDatabase[currentID].viewers.length,
     viewLog: urlDatabase[currentID].viewLog,
+    timeCreated: urlDatabase[currentID].timeCreated,
   };
   res.render('urls_show', templateVars);
 });
