@@ -23,17 +23,21 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
-        <h4>Edit</h4>
+        <h4 class="card-title">Edit Link</h4>
         <form method = "POST" action="/urls/<%= id %>?_method=PUT">
           <input type="text" name="newID" placeholder="Enter a new URL">
           <button type="submit">Submit</button>
         </form>
       </div>
       <div class="card-footer text-muted">
-        <p class="card-text">
-          Page Views: <a><%= (viewCount || 0) %></a> Page Viewers: <a><%= viewerCount %></a>
+        <h4 class="card-title">Link Analytics</h4>
+        <p>
+          Page Views: <%= (viewCount || 0) %>
         </p>
-        <p>View Log:</p>
+        <p>
+          Unique Viewers: <%= viewerCount %>
+        </p>
+          <p>View Log:</p>
         <table class="table">
           <thead>
             <tr>
