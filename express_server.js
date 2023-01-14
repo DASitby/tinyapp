@@ -64,6 +64,7 @@ app.get('/register', (req,res) => {
   //if not logged in, render register page
   res.render('register', templateVars);
 });
+
 app.post('/register', (req, res) => {
   let newEmail = req.body.email;
   let newPassword = bcrypt.hashSync(req.body.password, 10);
@@ -105,6 +106,7 @@ app.get('/login', (req,res) => {
   //if not already logged in render login
   res.render('login',templateVars);
 });
+
 app.post('/login', (req, res) => {
   let loginEmail = req.body.email;
   let loginPass = req.body.password;
