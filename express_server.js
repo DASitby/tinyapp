@@ -163,7 +163,7 @@ app.get('/urls/:id', (req, res) => {
   } else if (!ownerCheck(currentUser, currentID, urlDatabase)) {
     res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
   } else {
-    req.session.views = (req.session.views || 0) + 1;
+    //req.session.views = (req.session.views || 0) + 1;
     const templateVars = {
       id: currentID,
       longURL: urlDatabase[currentID].longURL,
@@ -212,11 +212,12 @@ app.delete('/urls/:id', (req, res) => {
 //REDIRECT TO
 app.get('/u/:id', (req, res) => {
   let currentID = req.params.id;
-  if (!urlExists(currentID)) {
+  if (!urlExists(currentID, urlDatabase)) {
     res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
   }
   for (const url in urlDatabase) {
     if (url === currentID) {
+      req.session.views = (req.session.views || 0) + 1;
       const longURL = urlDatabase[currentID].longURL;
       return res.redirect(longURL);
     }
