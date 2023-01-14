@@ -74,24 +74,23 @@ app.post('/register', (req, res) => {
     //send and error and redirect back to register
     return res.status(400).redirect('/register');
   }
-  //if the entered email is not already in the users object
-  if (!getUserByEmail(newEmail, users)) {
-  //generate a new user
-    let newUser = {
-      id: generateRandomString(),
-      email: newEmail,
-      password:newPassword
-    };
-    //add that user to the users object
-    users[newUser.id] = newUser;
-    //add the new user's ID to the session cookie
-    req.session['user_id'] = newUser.id;
-    //redirect to /urls after a successful registration
-    res.redirect('/urls');
-  } else {
-    //if user is already in users object, redirect to /login
-    return res.status(400).redirect('/login');
+  //if the entered email is already in the users object
+  if (getUserByEmail(newEmail, users)) {
+    //send an error message with a link to log in
+    return res.status(400).send('<p>This email is already associated with a user! Please <a href="/login">Login</a></p>');
   }
+  //if all checks pass, generate a new user
+  let newUser = {
+    id: generateRandomString(),
+    email: newEmail,
+    password:newPassword
+  };
+  //add that user to the users object
+  users[newUser.id] = newUser;
+  //add the new user's ID to the session cookie
+  req.session['user_id'] = newUser.id;
+  //redirect to /urls after a successful registration
+  res.redirect('/urls');
 });
 
 //LOGIN
@@ -111,22 +110,20 @@ app.post('/login', (req, res) => {
   let loginEmail = req.body.email;
   let loginPass = req.body.password;
   let user = getUserByEmail(loginEmail, users);
-  //if user doesn't exist, redirect to register
+  //if user doesn't exist
   if (!user) {
+    //redirect to register
     return res.status(404).redirect('/register');
   } else {
-    /*
-    if user does exist, check if encrypted password
-    is the same as what was passed in the form
-    */
+    //if user does exist, check if encrypted password matches password from form
     if (bcrypt.compareSync(loginPass, user.password)) {
       //if the passwords match, set the session cookie to the user's id
       req.session['user_id'] = user.id;
       //render /urls
       res.redirect('/urls');
     } else {
-      //if the passwords don't match, redirect back to /login
-      return res.status(403).redirect('/login');
+      //if the passwords don't match, send a message and redirect back to /login
+      return res.status(403).send('<p>Incorrect Password, try again: <a href="/Login">Login</a></p>');
     }
   }
 });
