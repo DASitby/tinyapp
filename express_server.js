@@ -163,10 +163,12 @@ app.get('/urls/:id', (req, res) => {
   } else if (!ownerCheck(currentUser, currentID, urlDatabase)) {
     res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
   } else {
+    req.session.views = (req.session.views || 0) + 1;
     const templateVars = {
       id: currentID,
       longURL: urlDatabase[currentID].longURL,
       user: users[currentUser],
+      views: req.session.views,
     };
     res.render('urls_show', templateVars);
   }
