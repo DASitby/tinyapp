@@ -61,8 +61,7 @@ app.get('/register', (req,res) => {
   //check if user is logged in
   if (currentUser) {
     //if logged in redirect to /urls
-    res.redirect('/urls');
-    return;
+    return res.redirect('/urls');
   }
   //if not logged in, render register page
   res.render('register', templateVars);
@@ -103,8 +102,7 @@ app.get('/login', (req,res) => {
   //check if already logged in
   if (req.session.user_id) {
     //if already logged in redirect to /urls
-    res.redirect('/urls');
-    return;
+    return res.redirect('/urls');
   }
   //if not already logged in render login
   res.render('login',templateVars);
@@ -149,18 +147,24 @@ app.post('/logout', (req,res) => {
 app.get('/urls/new', (req, res) => {
   let currentUser = req.session.user_id;
   const templateVars = {user: users[req.session.user_id]};
+  //if user is not logged in
   if (!currentUser) {
-    res.redirect('/login');
-    return;
+    //redirect to login
+    return res.redirect('/login');
   }
+  //if user is logged in render urls_new
   res.render('urls_new',templateVars);
 });
+
 app.post('/urls', (req, res) => {
   let currentUser = req.session.user_id;
+  //if user is not logged in
   if (!currentUser) {
-    res.send('<p>Cannot shorten URLs unless you <a href="/register">register</a> for tinyapp</p>');
-    return;
+    //send error message with register and login links
+    return res.send('<p>Cannot shorten URLs unless you <a href="/register">register</a> for tinyapp</p>');
+  //if user is logged in
   } else {
+    //populate urlDatabase with a new URL
     const id = generateRandomString();
     urlDatabase[id] = {
       longURL: req.body.longURL,
@@ -169,6 +173,7 @@ app.post('/urls', (req, res) => {
       viewers: [],
       viewLog: [],
     };
+    //redirect to the new URL's page
     res.redirect(`/urls/${id}`);
   }
 });
@@ -176,73 +181,98 @@ app.post('/urls', (req, res) => {
 //READ (ALL)
 app.get('/urls', (req,res) => {
   let currentUser = req.session.user_id;
+  //if user is not logged in
   if (!currentUser) {
-    res.send('<p>Cannot display URLs unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
-    return;
-  } else {
-    let userUrls = urlsforUser(currentUser,urlDatabase);
-    const templateVars = {urls: userUrls,user: users[currentUser]};
-    res.render('urls_index', templateVars);
+    //send error message with register and login links
+    return res.send('<p>Cannot display URLs unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
   }
+  //if user is logged in filter out the urls they own
+  let userUrls = urlsforUser(currentUser,urlDatabase);
+  const templateVars = {urls: userUrls,user: users[currentUser]};
+  //render urls_index
+  res.render('urls_index', templateVars);
 });
 
 //READ(ONE)
 app.get('/urls/:id', (req, res) => {
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
+  //if url doesn't exist in urlDatabase
   if (!urlExists(currentID, urlDatabase)) {
-    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
-    return;
-  } else if (!currentUser) {
-    res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
-  } else if (!ownerCheck(currentUser, currentID, urlDatabase)) {
-    res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
-  } else {
-    const templateVars = {
-      id: currentID,
-      longURL: urlDatabase[currentID].longURL,
-      user: users[currentUser],
-      viewCount: urlDatabase[currentID].viewCount,
-      viewerCount: urlDatabase[currentID].viewers.length,
-      viewLog: urlDatabase[currentID].viewLog,
-    };
-    res.render('urls_show', templateVars);
+    //send error message
+    return res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
   }
+  //if user is not logged in
+  if (!currentUser) {
+    //send error message with register and login links
+    return res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+  }
+  //if user does not own url
+  if (!ownerCheck(currentUser, currentID, urlDatabase)) {
+    //send error message
+    return res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
+  }
+  //if all checks passed render urls_show
+  const templateVars = {
+    id: currentID,
+    longURL: urlDatabase[currentID].longURL,
+    user: users[currentUser],
+    viewCount: urlDatabase[currentID].viewCount,
+    viewerCount: urlDatabase[currentID].viewers.length,
+    viewLog: urlDatabase[currentID].viewLog,
+  };
+  res.render('urls_show', templateVars);
 });
 
 //UPDATE
 app.put('/urls/:id', (req,res) => {
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
+  //if url doesn't exist in urlDatabase
   if (!urlExists(currentID, urlDatabase)) {
-    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
-    return;
-  } else if (!currentUser) {
-    res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
-  } else if (!ownerCheck(currentUser, currentID, urlDatabase)) {
-    res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
-  } else {
-    const newURL = req.body.newID;
-    urlDatabase[currentID].longURL = newURL;
-    res.redirect(`/urls/${currentID}`);
+    //send error message
+    return res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
   }
+  //if user is not logged in
+  if (!currentUser) {
+    //send error message with register and login links
+    return res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+  }
+  //if user does not own url
+  if (!ownerCheck(currentUser, currentID, urlDatabase)) {
+    //send error message
+    return res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
+  }
+  //if all checks passed, redirect to /urls/:id
+  const newURL = req.body.newID;
+  urlDatabase[currentID].longURL = newURL;
+  res.redirect(`/urls/${currentID}`);
+
 });
 
 //DELETE
 app.delete('/urls/:id', (req, res) => {
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
+  //if url doesn't exist in urlDatabase
   if (!urlExists(currentID, urlDatabase)) {
-    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
-    return;
-  } else if (!currentUser) {
-    res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
-  } else if (!ownerCheck(currentUser, currentID, urlDatabase)) {
-    res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
-  } else {
-    delete urlDatabase[currentID];
-    res.redirect(`/urls`);
+    //send error message
+    return res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
   }
+  //if user is not logged in
+  if (!currentUser) {
+    //send error message with register and login links
+    return res.status(403).send('<p>Cannot display URL page unless you <a href="/register">register</a> or <a href="/login">login</a></p>');
+  }
+  //if user does not own url
+  if (!ownerCheck(currentUser, currentID, urlDatabase)) {
+    //send error message
+    return res.status(403).send('<p>Error 403: This URL is not yours to edit</p>');
+  }
+  //if all checks passed, delete the url in question and redirect to /urls
+  delete urlDatabase[currentID];
+  res.redirect(`/urls`);
+  
 });
 
 //REDIRECT TO
@@ -250,14 +280,15 @@ app.get('/u/:id', (req, res) => {
   //simplifying variables
   let currentUser = req.session.user_id;
   let currentID = req.params.id;
-  //Check if url exists in the database, if not, send an error message
+  //if url doesn't exist in urlDatabase
   if (!urlExists(currentID, urlDatabase)) {
-    res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
+    //send an error message
+    return res.status(404).send('<p>Error 404: This shortened URL does not exist</p>');
   }
-  //Find which id in the URL database matches :id
+  //if url exists, find which id in the URL database matches it
   for (const url in urlDatabase) {
     if (url === currentID) {
-      //Increment view count
+      //When a match is found, increment viewcount
       urlDatabase[currentID].viewCount++;
       //Check if viewer is in the viewers array
       if (!urlDatabase[currentID].viewers.includes(currentUser)) {
