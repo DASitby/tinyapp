@@ -4,20 +4,20 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Final Product
 
+<div align="center">My URL page</div>
 !["MyURL page"](https://github.com/DASitby/tinyapp/blob/master/docs/my-urls-page.png?raw=true)
-<div align="center">My URL page</div>
 
-!["Short URL Show page"](https://github.com/DASitby/tinyapp/blob/master/docs/url-show-page.png?raw=true)
 <div align="center">Short URL Show page</div>
+!["Short URL Show page"](https://github.com/DASitby/tinyapp/blob/master/docs/url-show-page.png?raw=true)
 
-!["Create New URL Page"](https://github.com/DASitby/tinyapp/blob/master/docs/create-page.png?raw=true)
 <div align="center">My URL page</div>
+!["Create New URL Page"](https://github.com/DASitby/tinyapp/blob/master/docs/create-page.png?raw=true)
 
-!["Login Page"](https://github.com/DASitby/tinyapp/blob/master/docs/login-page.png?raw=true)
 <div align="center">Login page</div>
+!["Login Page"](https://github.com/DASitby/tinyapp/blob/master/docs/login-page.png?raw=true)
 
-!["Register Page"](https://github.com/DASitby/tinyapp/blob/master/docs/register-page.png?raw=true)
 <div align="center">Register page</div>
+!["Register Page"](https://github.com/DASitby/tinyapp/blob/master/docs/register-page.png?raw=true)
 
 ## Dependencies
 
