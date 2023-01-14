@@ -17,7 +17,7 @@
     href = '#'
   />
     <div class="card text-center">
-      <h1 class="card-footer">TinyURL for: <%= longURL %></h1>
+      <h2 class="card-footer">TinyURL for: <%= longURL %></h2>
       <p class="card-text">
         Date Created: <%= timeCreated.toDateString() %></a>
       </p>
@@ -32,6 +32,7 @@
           <input type="text" name="newID" placeholder="Enter a new URL">
           <button type="submit">Submit</button>
         </form>
+        <p class="text-muted">This will change the long URL that the short URL redirects to</p>
       </div>
       <div class="card-footer">
         <h4 class="card-title">Link Analytics</h4>
