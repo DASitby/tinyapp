@@ -44,9 +44,13 @@ app.use(methodOverride('_method'));
 
 //ROOT
 app.get('/', (req, res) => {
-  if (!req.session.user_id) {
+  let currentUser = req.session.user_id;
+  //check if user is logged in
+  if (!currentUser) {
+    //if not logged in redirect to /login
     return res.redirect('/login');
   }
+  //if logged in redirect to /urls
   res.redirect('/urls');
 });
 
@@ -54,31 +58,41 @@ app.get('/', (req, res) => {
 app.get('/register', (req,res) => {
   let currentUser = req.session.user_id;
   const templateVars = {user: users[currentUser]};
+  //check if user is logged in
   if (currentUser) {
+    //if logged in redirect to /urls
     res.redirect('/urls');
     return;
   }
+  //if not logged in, render register page
   res.render('register', templateVars);
 });
 app.post('/register', (req, res) => {
   let newEmail = req.body.email;
   let newPassword = bcrypt.hashSync(req.body.password, 10);
   //error handling
+  //check if either email or password are blank
   if (newEmail === '' || newPassword === '') {
+    //if either is blank redirect back to register
     return res.status(400).redirect('/register');
   }
+  //check if the entered email is already in the users object
   if (!getUserByEmail(newEmail, users)) {
-  //user generation
+  //if not in the users object, generate a new user
     let newUser = {
       id: generateRandomString(),
       email: newEmail,
       password:newPassword
     };
+    //add that user to the users object
     users[newUser.id] = newUser;
+    //add the new user's ID to the session cookie
     req.session['user_id'] = newUser.id;
+    //redirect to /urls after a successful registration
     res.redirect('/urls');
   } else {
-    return res.status(400).redirect('/register');
+    //if user is already in users object, redirect to /login
+    return res.status(400).redirect('/login');
   }
 });
 
@@ -86,23 +100,34 @@ app.post('/register', (req, res) => {
 app.get('/login', (req,res) => {
   let currentUser = req.session.user_id;
   const templateVars = {user: users[currentUser]};
+  //check if already logged in
   if (req.session.user_id) {
+    //if already logged in redirect to /urls
     res.redirect('/urls');
     return;
   }
+  //if not already logged in render login
   res.render('login',templateVars);
 });
 app.post('/login', (req, res) => {
   let loginEmail = req.body.email;
   let loginPass = req.body.password;
   let user = getUserByEmail(loginEmail, users);
+  //if user doesn't exist, redirect to register
   if (!user) {
-    return res.status(403).redirect('/login');
+    return res.status(404).redirect('/register');
   } else {
+    /*
+    if user does exist, check if encrypted password
+    is the same as what was passed in the form
+    */
     if (bcrypt.compareSync(loginPass, user.password)) {
+      //if the passwords match, set the session cookie to the user's id
       req.session['user_id'] = user.id;
+      //render /urls
       res.redirect('/urls');
     } else {
+      //if the passwords don't match, redirect back to /login
       return res.status(403).redirect('/login');
     }
   }
@@ -110,8 +135,9 @@ app.post('/login', (req, res) => {
 
 //LOGOUT
 app.post('/logout', (req,res) => {
-  res.clearCookie('session');
-  res.clearCookie('session.sig');
+  //clear the session cookie
+  req.session = null;
+  //redirect to /login
   res.redirect('/login');
 });
 
