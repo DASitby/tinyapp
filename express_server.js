@@ -31,8 +31,6 @@ app.set("view engine", "ejs");
 app.use(cookieSession({
   name: 'session',
   keys: ['yeahmyboyyeah'],
-
-  // Cookie Options
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }));
 app.use(express.urlencoded({ extended: false }));
@@ -45,12 +43,12 @@ app.use(methodOverride('_method'));
 //ROOT
 app.get('/', (req, res) => {
   let currentUser = req.session.user_id;
-  //check if user is logged in
+  //if user is not logged in
   if (!currentUser) {
-    //if not logged in redirect to /login
+    //redirect to /login
     return res.redirect('/login');
   }
-  //if logged in redirect to /urls
+  //if logged in, redirect to /urls
   res.redirect('/urls');
 });
 
@@ -58,9 +56,9 @@ app.get('/', (req, res) => {
 app.get('/register', (req,res) => {
   let currentUser = req.session.user_id;
   const templateVars = {user: users[currentUser]};
-  //check if user is logged in
+  //if user is logged in
   if (currentUser) {
-    //if logged in redirect to /urls
+    //redirect to /urls
     return res.redirect('/urls');
   }
   //if not logged in, render register page
@@ -70,14 +68,14 @@ app.post('/register', (req, res) => {
   let newEmail = req.body.email;
   let newPassword = bcrypt.hashSync(req.body.password, 10);
   //error handling
-  //check if either email or password are blank
+  //if either email or password are blank
   if (newEmail === '' || newPassword === '') {
-    //if either is blank redirect back to register
+    //send and error and redirect back to register
     return res.status(400).redirect('/register');
   }
-  //check if the entered email is already in the users object
+  //if the entered email is not already in the users object
   if (!getUserByEmail(newEmail, users)) {
-  //if not in the users object, generate a new user
+  //generate a new user
     let newUser = {
       id: generateRandomString(),
       email: newEmail,
